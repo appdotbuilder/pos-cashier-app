@@ -1,9 +1,22 @@
 
+import { db } from '../db';
+import { productsTable } from '../db/schema';
 import { type Product } from '../schema';
 
-export async function getProducts(): Promise<Product[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all products from the database.
-    // Should return products with proper numeric type conversion from database.
-    return [];
-}
+export const getProducts = async (): Promise<Product[]> => {
+  try {
+    const results = await db.select()
+      .from(productsTable)
+      .execute();
+
+    // Convert numeric fields back to numbers
+    return results.map(product => ({
+      ...product,
+      cost_price: parseFloat(product.cost_price),
+      selling_price: parseFloat(product.selling_price)
+    }));
+  } catch (error) {
+    console.error('Get products failed:', error);
+    throw error;
+  }
+};
